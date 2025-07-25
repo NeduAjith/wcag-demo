@@ -37,7 +37,7 @@ function loadSection(section) {
 }
 
 // ====================================================================
-// 2. CONTENT TEMPLATES
+// 2. CONTENT TEMPLATES //test
 // ====================================================================
 
 function getPerceivableContent() {
@@ -79,7 +79,7 @@ function getPerceivableContent() {
           <p>(Alt describes the action, not the design)</p>
         </div>
         <div class="bad-example">
-          <h4>❌ Bad</h4>
+          <h4>❌ Bad</h4>  
           <a href="booking.html">
             <img src="media/images/book-now.png" alt="Red rectangular button with book now text">
           </a>
