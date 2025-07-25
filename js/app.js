@@ -1,14 +1,3 @@
-function toggleMenu() {
-  const menu = document.getElementById("nav-menu");
-  const btn = document.querySelector(".hamburger");
-
-  menu.classList.toggle("show");
-
-  // Update aria-expanded for screen reader users
-  const expanded = menu.classList.contains("show");
-  btn.setAttribute("aria-expanded", expanded);
-}
-
 // ====================================================================
 // WCAG ACCESSIBILITY EXAMPLES - MAIN JAVASCRIPT
 // ====================================================================
@@ -1118,4 +1107,16 @@ function toggleTranscript(transcriptId) {
   if (transcript) {
     transcript.hidden = !transcript.hidden;
   }
+}
+
+function toggleMenu() {
+  const menu = document.getElementById("nav-menu");
+  const btn = document.querySelector(".hamburger");
+
+  // Toggle menu visibility
+  menu.classList.toggle("show");
+
+  // Update aria-expanded for screen readers
+  const expanded = menu.classList.contains("show");
+  btn.setAttribute("aria-expanded", expanded);
 }
