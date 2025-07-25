@@ -17,6 +17,17 @@ body {
 /* ====================================================================
    2. LAYOUT & STRUCTURE
    ====================================================================*/
+.site-logo {
+  height: 60px;        /* Adjust as needed */
+  width: auto;         /* Keeps aspect ratio */
+  vertical-align: middle;
+  margin-right: 10px;
+}
+header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
 
 header, footer {
   background: #005fcc;
