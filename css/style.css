@@ -1,3 +1,18 @@
+/* Mobile Fix: Keep buttons aligned properly */
+@media (max-width: 768px) {
+  nav {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center; /* center on mobile */
+    gap: 5px;
+  }
+
+  .nav-link {
+    display: inline-block; /* stays horizontal if space allows */
+  }
+}
+
+
 /* ====================================================================
    WCAG ACCESSIBILITY EXAMPLES - MAIN STYLESHEET
    ====================================================================*/
