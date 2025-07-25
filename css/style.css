@@ -31,7 +31,10 @@ main {
 }
 
 nav {
+  display: flex;              /* Arranges buttons in a row (horizontal) */
+  gap: 10px;                  /* Adds space between buttons */
   margin-top: 0.5rem;
+  flex-wrap: wrap;            /* (Optional) wraps to next line on small screens */
 }
 
 /* ====================================================================
@@ -42,7 +45,6 @@ nav {
   background: white;
   color: #005fcc;
   border: 2px solid #005fcc;
-  margin-right: 5px;
   padding: 5px 10px;
   border-radius: 4px;
   cursor: pointer;
