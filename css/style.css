@@ -145,6 +145,61 @@ button:active:focus {
   outline-offset: 3px;
   background-color: #006400; /* Darker green for better contrast */
 }
+#aria-dialog {
+  position: fixed;
+  top: 30%;
+  left: 30%;
+  background: white;
+  border: 2px solid #333;
+  padding: 20px;
+  width: 300px;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+}
+
+.close-button {
+  position: absolute;
+  top: 5px;
+  right: 5px;
+  width: 24px;
+  height: 24px;
+  background: grey;
+  color: white;
+  border: none;
+  font-size: 16px;
+  border-radius: 4px;
+  cursor: pointer;
+  z-index: 10;
+
+  visibility: visible;
+  opacity: 1;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Optional: focus style for keyboard users */
+.close-button:focus {
+  outline: 2px solid yellow;
+  outline-offset: 2px;
+}
+.tabs button[role="tab"] {
+  padding: 0.5em 1em;
+  cursor: pointer;
+}
+
+.tabs button[aria-selected="true"] {
+  background-color: #007acc;
+  color: white;
+  font-weight: bold;
+}
+
+[role="tabpanel"] {
+  border: 1px solid #ccc;
+  padding: 1em;
+  margin-top: 0.5em;
+}
+
 
 /* ====================================================================
    4. ACCESSIBILITY & FOCUS MANAGEMENT

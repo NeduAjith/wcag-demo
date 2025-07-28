@@ -821,27 +821,41 @@ function getRobustContent() {
       <h3>2. Dialog with ARIA (4.1.3)</h3>
       <div class="example-row">
         <div class="good-example">
-          <h4>✅ Correct</h4>
-          <p>Use <code>role="dialog"</code> with proper labels and focus management.</p>
-          <button id="open-aria-dialog" onclick="openRobustDialog()">Open ARIA Dialog</button>
-          <div id="aria-dialog" role="dialog" aria-modal="true" aria-labelledby="aria-dialog-title" hidden
-               style="position:fixed; top:30%; left:30%; background:white; border:2px solid #333; padding:20px; width:300px;">
-            <h4 id="aria-dialog-title">Subscribe</h4>
-            <p>Would you like to subscribe to our newsletter?</p>
-            <button onclick="closeRobustDialog()">Yes</button>
-            <button onclick="closeRobustDialog()">No</button>
-          </div>
-        </div>
+  <h4>✅ Correct</h4>
+  <p>Use <code>role="dialog"</code> with proper labels and focus management.</p>
+  <button id="open-aria-dialog" onclick="openRobustDialog()">Open ARIA Dialog</button>
+
+  <div
+    id="aria-dialog"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="aria-dialog-title"
+    aria-describedby="aria-dialog-desc"
+    hidden
+    style="position:fixed; top:30%; left:30%; background:white; border:2px solid #333; padding:20px; width:300px;"
+  >
+    <button aria-label="Close dialog" onclick="closeRobustDialog()" class="close-button">×</button>
+    <h4 id="aria-dialog-title">Subscribe</h4>
+    <p id="aria-dialog-desc">Would you like to subscribe to our newsletter?</p>
+    <button onclick="closeRobustDialog()">Yes</button>
+    <button onclick="closeRobustDialog()">No</button>
+  </div>
+</div>
+
         <div class="bad-example">
-          <h4>❌ Bad</h4>
-          <p>Popup with no ARIA roles, no focus trap, and no proper labeling.</p>
-          <button onclick="document.getElementById('bad-popup').style.display='block'">Open Bad Popup</button>
-          <div id="bad-popup" style="display:none; position:fixed; top:30%; left:30%; background:white; border:1px solid #333; padding:20px; width:300px;">
-            <b>Subscribe</b>
-            <p>No ARIA role, screen readers may miss this.</p>
-            <button onclick="this.parentElement.style.display='none'">Close</button>
-          </div>
-        </div>
+  <h4>❌ Bad</h4>
+  <p>Popup with no ARIA roles, no focus trap, and no proper labeling.</p>
+  <button onclick="document.getElementById('bad-popup').style.display='block'">Open Bad Popup</button>
+
+  <div
+    id="bad-popup"
+    style="display:none; position:fixed; top:30%; left:30%; background:white; border:1px solid #333; padding:20px; width:300px;"
+  >
+    <b>Subscribe</b>
+    <p>No ARIA role, screen readers may miss this.</p>
+    <button onclick="this.parentElement.style.display='none'">Close</button>
+  </div>
+</div>
       </div>
     </section>
 
@@ -863,6 +877,66 @@ function getRobustContent() {
         </div>
       </div>
     </section>
+    <section aria-labelledby="manual-tabs-heading">
+  <h2 id="manual-tabs-heading">Tabs with Manual Activation</h2>
+
+  <div class="tabs manual" role="tablist" aria-label="Manual Tabs">
+    <button
+      role="tab"
+      aria-selected="true"
+      aria-controls="manual-panel-1"
+      id="manual-tab-1"
+      tabindex="0"
+    >
+      Tab 1
+    </button>
+    <button
+      role="tab"
+      aria-selected="false"
+      aria-controls="manual-panel-2"
+      id="manual-tab-2"
+      tabindex="-1"
+    >
+      Tab 2
+    </button>
+    <button
+      role="tab"
+      aria-selected="false"
+      aria-controls="manual-panel-3"
+      id="manual-tab-3"
+      tabindex="-1"
+    >
+      Tab 3
+    </button>
+  </div>
+
+  <div
+    id="manual-panel-1"
+    role="tabpanel"
+    tabindex="0"
+    aria-labelledby="manual-tab-1"
+  >
+    Content for Tab 1
+  </div>
+  <div
+    id="manual-panel-2"
+    role="tabpanel"
+    tabindex="0"
+    aria-labelledby="manual-tab-2"
+    hidden
+  >
+    Content for Tab 2
+  </div>
+  <div
+    id="manual-panel-3"
+    role="tabpanel"
+    tabindex="0"
+    aria-labelledby="manual-tab-3"
+    hidden
+  >
+    Content for Tab 3
+  </div>
+</section>
   `;
 }
 
@@ -1097,6 +1171,14 @@ function showRobustStatus() {
     statusElement.innerText = "Saved successfully!";
   }
 }
+function closeRobustDialog() {
+  const modal = document.getElementById("aria-dialog");
+  if (!modal) return;
+  
+  modal.hidden = true;
+  document.removeEventListener("keydown", robustKeyHandler);
+  if (lastFocusedRobust) lastFocusedRobust.focus();
+}
 
 // ====================================================================
 // 8. UTILITY FUNCTIONS
@@ -1120,3 +1202,145 @@ function toggleMenu() {
   const expanded = menu.classList.contains("show");
   btn.setAttribute("aria-expanded", expanded);
 }
+
+//
+'use strict';
+
+class TabsManual {
+  constructor(groupNode) {
+    this.tablistNode = groupNode;
+
+    this.tabs = [];
+    this.tabpanels = [];
+
+    this.firstTab = null;
+    this.lastTab = null;
+
+    const children = this.tablistNode.children;
+    for (let i = 0; i < children.length; i++) {
+      const node = children[i];
+      if (node.getAttribute('role') === 'tab') {
+        this.tabs.push(node);
+        this.firstTab = this.firstTab || node;
+        this.lastTab = node;
+      }
+    }
+
+    for (let i = 0; i < this.tabs.length; i++) {
+      const tab = this.tabs[i];
+      const tabpanel = document.getElementById(tab.getAttribute('aria-controls'));
+      tab.tabIndex = tab.getAttribute('aria-selected') === 'true' ? 0 : -1;
+
+      this.tabpanels.push(tabpanel);
+
+      tab.addEventListener('keydown', this.onKeydown.bind(this));
+      tab.addEventListener('click', this.onClick.bind(this));
+    }
+  }
+
+  onKeydown(event) {
+    const key = event.key;
+    let newTab = null;
+
+    switch (key) {
+      case 'ArrowLeft':
+      case 'Left':
+        newTab = this.getPreviousTab(event.currentTarget);
+        break;
+      case 'ArrowRight':
+      case 'Right':
+        newTab = this.getNextTab(event.currentTarget);
+        break;
+      case 'Home':
+        newTab = this.firstTab;
+        break;
+      case 'End':
+        newTab = this.lastTab;
+        break;
+      case 'Enter':
+      case ' ':
+        this.activateTab(event.currentTarget);
+        break;
+      default:
+        break;
+    }
+
+    if (newTab) {
+      event.preventDefault();
+      newTab.focus();
+    }
+  }
+
+  onClick(event) {
+    this.activateTab(event.currentTarget);
+  }
+
+  activateTab(tab) {
+    for (let i = 0; i < this.tabs.length; i++) {
+      this.tabs[i].setAttribute('aria-selected', 'false');
+      this.tabs[i].tabIndex = -1;
+      this.tabpanels[i].hidden = true;
+    }
+
+    tab.setAttribute('aria-selected', 'true');
+    tab.tabIndex = 0;
+    const tabpanel = document.getElementById(tab.getAttribute('aria-controls'));
+    tabpanel.hidden = false;
+  }
+
+  getPreviousTab(currentTab) {
+    const index = this.tabs.indexOf(currentTab);
+    return index > 0 ? this.tabs[index - 1] : this.lastTab;
+  }
+
+  getNextTab(currentTab) {
+    const index = this.tabs.indexOf(currentTab);
+    return index < this.tabs.length - 1 ? this.tabs[index + 1] : this.firstTab;
+  }
+}
+
+window.addEventListener('load', function () {
+  const tablists = document.querySelectorAll('[role=tablist].manual');
+  for (let i = 0; i < tablists.length; i++) {
+    new TabsManual(tablists[i]);
+  }
+});
+// ...existing code...
+
+// Add this utility function near the top or bottom of your file:
+function initTabsManual() {
+  const tablists = document.querySelectorAll('[role=tablist].manual');
+  for (let i = 0; i < tablists.length; i++) {
+    new TabsManual(tablists[i]);
+  }
+}
+
+// Update your loadSection function:
+function loadSection(section) {
+  switch (section) {
+    case "perceivable":
+      content.innerHTML = getPerceivableContent();
+      break;
+    case "operable":
+      content.innerHTML = getOperableContent();
+      initOperableEventListeners();
+      break;
+    case "understandable":
+      content.innerHTML = getUnderstandableContent();
+      break;
+    case "robust":
+      content.innerHTML = getRobustContent();
+      break;
+    default:
+      content.innerHTML = `<h2>Welcome</h2><p>Select a principle above to view examples.</p>`;
+  }
+  // Always re-initialize tabs after loading new content
+  initTabsManual();
+}
+
+// Remove the old window.onload TabsManual code at the bottom:
+window.addEventListener('load', function () {
+  initTabsManual();
+});
+
+// ...existing code...
