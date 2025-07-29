@@ -3,19 +3,30 @@
 // ====================================================================
 
 // ====================================================================
-// 1. CORE NAVIGATION & CONTENT LOADING
+// 1. GLOBAL VARIABLES & CONSTANTS
 // ====================================================================
 
 const content = document.getElementById("content");
+let lastFocusedTrigger = null;
+let accessibleModalKeyHandler = null;
+let lastFocusedElement = null;
+let timeoutKeyHandler = null;
+let lastFocusedRobust = null;
+let robustKeyHandler = null;
+
+// ====================================================================
+// 2. NAVIGATION & CONTENT LOADING
+// ====================================================================
 
 // Initialize navigation event listeners
 document.querySelectorAll(".nav-link").forEach((btn) => {
   btn.addEventListener("click", () => {
-    const section = btn.dataset.section;``
+    const section = btn.dataset.section;
     loadSection(section);
   });
 });
 
+// Main section loader
 function loadSection(section) {
   switch (section) {
     case "perceivable":
@@ -34,10 +45,12 @@ function loadSection(section) {
     default:
       content.innerHTML = `<h2>Welcome</h2><p>Select a principle above to view examples.</p>`;
   }
+  // Always re-initialize widgets after loading new content
+  initTabsManual();
 }
 
 // ====================================================================
-// 2. CONTENT TEMPLATES //test
+// 3. CONTENT TEMPLATES
 // ====================================================================
 
 function getPerceivableContent() {
@@ -1006,27 +1019,30 @@ function getRobustContent() {
 </section>
   `;
 }
-  function toggleAccordion(button) {
-    const contentId = button.getAttribute("aria-controls");
-    const content = document.getElementById(contentId);
-    const expanded = button.getAttribute("aria-expanded") === "true";
-
-    button.setAttribute("aria-expanded", !expanded);
-    content.hidden = expanded;
-  }
-
-  function toggleDisclosure(button) {
-    const panelId = button.getAttribute("aria-controls");
-    const panel = document.getElementById(panelId);
-    const expanded = button.getAttribute("aria-expanded") === "true";
-
-    button.setAttribute("aria-expanded", !expanded);
-    panel.hidden = expanded;
-    button.textContent = expanded ? "Show Filters" : "Hide Filters";
-  }
 
 // ====================================================================
-// 3. OPERABLE SECTION EVENT HANDLERS
+// 4. ACCORDION & DISCLOSURE WIDGETS
+// ====================================================================
+
+function toggleAccordion(button) {
+  const contentId = button.getAttribute("aria-controls");
+  const content = document.getElementById(contentId);
+  const expanded = button.getAttribute("aria-expanded") === "true";
+  button.setAttribute("aria-expanded", !expanded);
+  content.hidden = expanded;
+}
+
+function toggleDisclosure(button) {
+  const panelId = button.getAttribute("aria-controls");
+  const panel = document.getElementById(panelId);
+  const expanded = button.getAttribute("aria-expanded") === "true";
+  button.setAttribute("aria-expanded", !expanded);
+  panel.hidden = expanded;
+  button.textContent = expanded ? "Show Filters" : "Hide Filters";
+}
+
+// ====================================================================
+// 5. OPERABLE SECTION EVENT HANDLERS
 // ====================================================================
 
 function initOperableEventListeners() {
@@ -1037,40 +1053,36 @@ function initOperableEventListeners() {
 }
 
 // ====================================================================
-// 4. MODAL AND DIALOG MANAGEMENT
+// 6. MODAL AND DIALOG MANAGEMENT
 // ====================================================================
 
 // Accessible Modal Functions
-let lastFocusedTrigger = null;
-let accessibleModalKeyHandler = null;
-
 function openAccessibleModal() {
-  const modal = document.getElementById('accessible-modal');
+  const modal = document.getElementById("accessible-modal");
   if (!modal) return;
-  
   modal.hidden = false;
   lastFocusedTrigger = document.activeElement;
   trapAccessibleModalFocus(modal);
-  modal.querySelector('button').focus();
+  modal.querySelector("button").focus();
 }
 
 function closeAccessibleModal() {
-  const modal = document.getElementById('accessible-modal');
+  const modal = document.getElementById("accessible-modal");
   if (!modal) return;
-  
   modal.hidden = true;
-  document.removeEventListener('keydown', accessibleModalKeyHandler);
+  document.removeEventListener("keydown", accessibleModalKeyHandler);
   if (lastFocusedTrigger) lastFocusedTrigger.focus();
 }
 
 function trapAccessibleModalFocus(modal) {
-  const focusableSelectors = 'button, [href], input, textarea, [tabindex]:not([tabindex="-1"])';
+  const focusableSelectors =
+    'button, [href], input, textarea, [tabindex]:not([tabindex="-1"])';
   const focusableElements = modal.querySelectorAll(focusableSelectors);
   const firstEl = focusableElements[0];
   const lastEl = focusableElements[focusableElements.length - 1];
 
   accessibleModalKeyHandler = function (e) {
-    if (e.key === 'Tab') {
+    if (e.key === "Tab") {
       if (e.shiftKey && document.activeElement === firstEl) {
         e.preventDefault();
         lastEl.focus();
@@ -1079,88 +1091,79 @@ function trapAccessibleModalFocus(modal) {
         firstEl.focus();
       }
     }
-    if (e.key === 'Escape') closeAccessibleModal();
+    if (e.key === "Escape") closeAccessibleModal();
   };
 
-  document.addEventListener('keydown', accessibleModalKeyHandler);
+  document.addEventListener("keydown", accessibleModalKeyHandler);
 }
 
 // Keyboard Trap (Bad Example) Functions
 function openTrappedModal() {
-  const modal = document.getElementById('trapped-modal');
+  const modal = document.getElementById("trapped-modal");
   if (!modal) return;
-  
-  modal.style.display = 'block';
-  modal.querySelector('button').focus();
-  document.addEventListener('keydown', badTrapHandler);
+  modal.style.display = "block";
+  modal.querySelector("button").focus();
+  document.addEventListener("keydown", badTrapHandler);
 }
 
 function closeTrappedModal() {
-  const modal = document.getElementById('trapped-modal');
+  const modal = document.getElementById("trapped-modal");
   if (!modal) return;
-  
-  modal.style.display = 'none';
-  document.removeEventListener('keydown', badTrapHandler);
+  modal.style.display = "none";
+  document.removeEventListener("keydown", badTrapHandler);
 }
 
 function badTrapHandler(e) {
-  if (e.key === 'Tab') {
+  if (e.key === "Tab") {
     e.preventDefault();
-    const button = document.querySelector('#trapped-modal button');
+    const button = document.querySelector("#trapped-modal button");
     if (button) button.focus();
   }
 }
 
 // ====================================================================
-// 5. TIMEOUT MANAGEMENT
+// 7. TIMEOUT MANAGEMENT
 // ====================================================================
 
-let lastFocusedElement = null;
-let timeoutKeyHandler = null;
-
+// Opens the timeout popup and traps focus inside it
 function openTimeoutPopup() {
-  const popup = document.getElementById('timeout-popup');
+  const popup = document.getElementById("timeout-popup");
   if (!popup) return;
-
   popup.hidden = false;
   lastFocusedElement = document.activeElement;
-
-  const firstButton = popup.querySelector('button');
+  // Focus the first focusable button in the popup
+  const firstButton = popup.querySelector("button");
   if (firstButton) firstButton.focus();
-
   trapTimeoutFocus(popup);
 }
 
+// Closes the timeout popup and restores focus
 function closeTimeoutPopup() {
-  const popup = document.getElementById('timeout-popup');
+  const popup = document.getElementById("timeout-popup");
   if (!popup) return;
-  
   popup.hidden = true;
-  document.removeEventListener('keydown', timeoutKeyHandler);
-
-  if (lastFocusedElement) {
-    lastFocusedElement.focus();
-  }
+  document.removeEventListener("keydown", timeoutKeyHandler);
+  if (lastFocusedElement) lastFocusedElement.focus();
 }
 
 function extendSession() {
-  alert('Session extended!');
+  alert("Session extended!");
   closeTimeoutPopup();
-
-  // Restart the countdown after extension (10 seconds for demo)
   setTimeout(() => {
     openTimeoutPopup();
   }, 10000);
 }
 
+// Traps keyboard focus within the timeout popup
 function trapTimeoutFocus(popup) {
-  const focusableSelectors = 'button, [href], input, textarea, [tabindex]:not([tabindex="-1"])';
+  const focusableSelectors =
+    'button, [href], input, textarea, [tabindex]:not([tabindex="-1"])';
   const focusableElements = popup.querySelectorAll(focusableSelectors);
   const firstEl = focusableElements[0];
   const lastEl = focusableElements[focusableElements.length - 1];
 
   timeoutKeyHandler = function (e) {
-    if (e.key === 'Tab') {
+    if (e.key === "Tab") {
       if (e.shiftKey) {
         if (document.activeElement === firstEl) {
           e.preventDefault();
@@ -1173,46 +1176,40 @@ function trapTimeoutFocus(popup) {
         }
       }
     }
-    if (e.key === 'Escape') {
+    if (e.key === "Escape") {
       closeTimeoutPopup();
     }
   };
 
-  document.addEventListener('keydown', timeoutKeyHandler);
+  document.addEventListener("keydown", timeoutKeyHandler);
 }
 
 // ====================================================================
-// 6. FORM VALIDATION (UNDERSTANDABLE SECTION)
+// 8. FORM VALIDATION (UNDERSTANDABLE SECTION)
 // ====================================================================
 
 function showErrorExample() {
   const emailField = document.getElementById("email-good");
   const errorMsg = document.getElementById("email-error");
-  
   if (!emailField || !errorMsg) return false;
-  
   if (!emailField.value.includes("@")) {
-    errorMsg.textContent = "Please enter a valid email (example: name@example.com)";
+    errorMsg.textContent =
+      "Please enter a valid email (example: name@example.com)";
     return false;
   }
-  
   errorMsg.textContent = "";
   alert("Form submitted successfully!");
   return true;
 }
 
 // ====================================================================
-// 7. ROBUST SECTION FUNCTIONS
+// 9. ROBUST SECTION FUNCTIONS
 // ====================================================================
 
 // Robust Dialog Functions
-let lastFocusedRobust = null;
-let robustKeyHandler = null;
-
 function openRobustDialog() {
   const modal = document.getElementById("aria-dialog");
   if (!modal) return;
-  
   modal.hidden = false;
   lastFocusedRobust = document.activeElement;
   trapRobustFocus(modal);
@@ -1222,7 +1219,6 @@ function openRobustDialog() {
 function closeRobustDialog() {
   const modal = document.getElementById("aria-dialog");
   if (!modal) return;
-  
   modal.hidden = true;
   document.removeEventListener("keydown", robustKeyHandler);
   if (lastFocusedRobust) lastFocusedRobust.focus();
@@ -1256,17 +1252,9 @@ function showRobustStatus() {
     statusElement.innerText = "Saved successfully!";
   }
 }
-function closeRobustDialog() {
-  const modal = document.getElementById("aria-dialog");
-  if (!modal) return;
-  
-  modal.hidden = true;
-  document.removeEventListener("keydown", robustKeyHandler);
-  if (lastFocusedRobust) lastFocusedRobust.focus();
-}
 
 // ====================================================================
-// 8. UTILITY FUNCTIONS
+// 10. UTILITY FUNCTIONS
 // ====================================================================
 
 function toggleTranscript(transcriptId) {
@@ -1279,32 +1267,29 @@ function toggleTranscript(transcriptId) {
 function toggleMenu() {
   const menu = document.getElementById("nav-menu");
   const btn = document.querySelector(".hamburger");
-
-  // Toggle menu visibility
   menu.classList.toggle("show");
-
-  // Update aria-expanded for screen readers
   const expanded = menu.classList.contains("show");
   btn.setAttribute("aria-expanded", expanded);
 }
 
-//
-'use strict';
+// ====================================================================
+// 11. TABS (MANUAL ACTIVATION)
+// ====================================================================
+
+("use strict");
 
 class TabsManual {
   constructor(groupNode) {
     this.tablistNode = groupNode;
-
     this.tabs = [];
     this.tabpanels = [];
-
     this.firstTab = null;
     this.lastTab = null;
 
     const children = this.tablistNode.children;
     for (let i = 0; i < children.length; i++) {
       const node = children[i];
-      if (node.getAttribute('role') === 'tab') {
+      if (node.getAttribute("role") === "tab") {
         this.tabs.push(node);
         this.firstTab = this.firstTab || node;
         this.lastTab = node;
@@ -1313,43 +1298,41 @@ class TabsManual {
 
     for (let i = 0; i < this.tabs.length; i++) {
       const tab = this.tabs[i];
-      const tabpanel = document.getElementById(tab.getAttribute('aria-controls'));
-      tab.tabIndex = tab.getAttribute('aria-selected') === 'true' ? 0 : -1;
-
+      const tabpanel = document.getElementById(
+        tab.getAttribute("aria-controls")
+      );
+      tab.tabIndex = tab.getAttribute("aria-selected") === "true" ? 0 : -1;
       this.tabpanels.push(tabpanel);
-
-      tab.addEventListener('keydown', this.onKeydown.bind(this));
-      tab.addEventListener('click', this.onClick.bind(this));
+      tab.addEventListener("keydown", this.onKeydown.bind(this));
+      tab.addEventListener("click", this.onClick.bind(this));
     }
   }
 
   onKeydown(event) {
     const key = event.key;
     let newTab = null;
-
     switch (key) {
-      case 'ArrowLeft':
-      case 'Left':
+      case "ArrowLeft":
+      case "Left":
         newTab = this.getPreviousTab(event.currentTarget);
         break;
-      case 'ArrowRight':
-      case 'Right':
+      case "ArrowRight":
+      case "Right":
         newTab = this.getNextTab(event.currentTarget);
         break;
-      case 'Home':
+      case "Home":
         newTab = this.firstTab;
         break;
-      case 'End':
+      case "End":
         newTab = this.lastTab;
         break;
-      case 'Enter':
-      case ' ':
+      case "Enter":
+      case " ":
         this.activateTab(event.currentTarget);
         break;
       default:
         break;
     }
-
     if (newTab) {
       event.preventDefault();
       newTab.focus();
@@ -1362,14 +1345,13 @@ class TabsManual {
 
   activateTab(tab) {
     for (let i = 0; i < this.tabs.length; i++) {
-      this.tabs[i].setAttribute('aria-selected', 'false');
+      this.tabs[i].setAttribute("aria-selected", "false");
       this.tabs[i].tabIndex = -1;
       this.tabpanels[i].hidden = true;
     }
-
-    tab.setAttribute('aria-selected', 'true');
+    tab.setAttribute("aria-selected", "true");
     tab.tabIndex = 0;
-    const tabpanel = document.getElementById(tab.getAttribute('aria-controls'));
+    const tabpanel = document.getElementById(tab.getAttribute("aria-controls"));
     tabpanel.hidden = false;
   }
 
@@ -1384,48 +1366,17 @@ class TabsManual {
   }
 }
 
-window.addEventListener('load', function () {
-  const tablists = document.querySelectorAll('[role=tablist].manual');
-  for (let i = 0; i < tablists.length; i++) {
-    new TabsManual(tablists[i]);
-  }
-});
-// ...existing code...
-
-// Add this utility function near the top or bottom of your file:
 function initTabsManual() {
-  const tablists = document.querySelectorAll('[role=tablist].manual');
+  const tablists = document.querySelectorAll("[role=tablist].manual");
   for (let i = 0; i < tablists.length; i++) {
     new TabsManual(tablists[i]);
   }
 }
 
-// Update your loadSection function:
-function loadSection(section) {
-  switch (section) {
-    case "perceivable":
-      content.innerHTML = getPerceivableContent();
-      break;
-    case "operable":
-      content.innerHTML = getOperableContent();
-      initOperableEventListeners();
-      break;
-    case "understandable":
-      content.innerHTML = getUnderstandableContent();
-      break;
-    case "robust":
-      content.innerHTML = getRobustContent();
-      break;
-    default:
-      content.innerHTML = `<h2>Welcome</h2><p>Select a principle above to view examples.</p>`;
-  }
-  // Always re-initialize tabs after loading new content
-  initTabsManual();
-}
+// ====================================================================
+// 12. INITIALIZATION
+// ====================================================================
 
-// Remove the old window.onload TabsManual code at the bottom:
-window.addEventListener('load', function () {
+window.addEventListener("load", function () {
   initTabsManual();
 });
-
-// ...existing code...
