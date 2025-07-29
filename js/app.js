@@ -937,8 +937,93 @@ function getRobustContent() {
     Content for Tab 3
   </div>
 </section>
+<!-- Accordion Section -->
+<section class="accordion-section">
+  <h2>Accordion (Profile Details)</h2>
+
+  <div class="accordion" id="accordionGroup">
+    <div class="accordion-item">
+      <h3>
+        <button
+          type="button"
+          aria-expanded="true"
+          aria-controls="panel-personal"
+          id="accordion1"
+          onclick="toggleAccordion(this)">
+          Personal Information
+        </button>
+      </h3>
+      <div
+        id="panel-personal"
+        role="region"
+        aria-labelledby="accordion1">
+        <p>Name: John Doe</p>
+        <p>Email: john@example.com</p>
+      </div>
+    </div>
+
+    <div class="accordion-item">
+      <h3>
+        <button
+          type="button"
+          aria-expanded="false"
+          aria-controls="panel-security"
+          id="accordion2"
+          onclick="toggleAccordion(this)">
+          Security Settings
+        </button>
+      </h3>
+      <div
+        id="panel-security"
+        role="region"
+        aria-labelledby="accordion2"
+        hidden>
+        <p>Change password, enable 2FA...</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Disclosure Section -->
+<section class="disclosure-section">
+  <h2>Disclosure (Show/Hide Filters)</h2>
+
+  <button
+    type="button"
+    aria-expanded="false"
+    aria-controls="filterPanel"
+    onclick="toggleDisclosure(this)">
+    Show Filters
+  </button>
+
+  <div id="filterPanel" hidden>
+    <fieldset>
+      <legend>Filter by Category</legend>
+      <label><input type="checkbox" name="catA"> Category A</label><br>
+      <label><input type="checkbox" name="catB"> Category B</label><br>
+    </fieldset>
+  </div>
+</section>
   `;
 }
+  function toggleAccordion(button) {
+    const contentId = button.getAttribute("aria-controls");
+    const content = document.getElementById(contentId);
+    const expanded = button.getAttribute("aria-expanded") === "true";
+
+    button.setAttribute("aria-expanded", !expanded);
+    content.hidden = expanded;
+  }
+
+  function toggleDisclosure(button) {
+    const panelId = button.getAttribute("aria-controls");
+    const panel = document.getElementById(panelId);
+    const expanded = button.getAttribute("aria-expanded") === "true";
+
+    button.setAttribute("aria-expanded", !expanded);
+    panel.hidden = expanded;
+    button.textContent = expanded ? "Show Filters" : "Hide Filters";
+  }
 
 // ====================================================================
 // 3. OPERABLE SECTION EVENT HANDLERS
